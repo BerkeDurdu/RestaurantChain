@@ -1,0 +1,11 @@
+node_modules/
+.env
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# OS files
+.DS_Store
+Thumbs.db

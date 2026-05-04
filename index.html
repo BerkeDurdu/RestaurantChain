@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChainOps — Restoran Zinciri Operasyon İzleme</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">CO</div>
+      <div>
+        <h1>ChainOps</h1>
+        <p class="subtitle">Restoran Zinciri Operasyon İzleme Merkezi</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill" id="systemStatus">
+        <span class="dot"></span><span>Sistem Çevrimiçi</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="user-menu">
+        <div class="user-info">
+          <div class="user-name" id="userName">—</div>
+          <div class="user-role" id="userRole">—</div>
+        </div>
+        <button class="btn-logout" id="logoutBtn">Çıkış</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview">Genel Bakış</button>
+    <button class="tab" data-tab="branches">Şubeler</button>
+    <button class="tab" data-tab="stock">Stok</button>
+    <button class="tab" data-tab="alerts">Uyarılar <span class="badge" id="alertBadge">0</span></button>
+    <button class="tab" data-tab="reports">Raporlar</button>
+  </nav>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section class="panel active" id="overview">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Bugünkü Sipariş</div>
+          <div class="kpi-value" id="kpiOrders">0</div>
+          <div class="kpi-trend up">+12% dün</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ort. Sipariş Süresi</div>
+          <div class="kpi-value"><span id="kpiAvgTime">0</span><span class="unit">dk</span></div>
+          <div class="kpi-trend" id="kpiAvgTrend">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">En Yoğun Şube</div>
+          <div class="kpi-value small" id="kpiBusy">—</div>
+          <div class="kpi-trend" id="kpiBusyOrders">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">POS Uptime (Ortalama)</div>
+          <div class="kpi-value"><span id="kpiUptime">0</span><span class="unit">%</span></div>
+          <div class="kpi-trend" id="kpiUptimeTrend">—</div>
+        </div>
+        <div class="kpi-card alert-card" id="alertCard">
+          <div class="kpi-label">Aktif Uyarı</div>
+          <div class="kpi-value" id="kpiAlerts">0</div>
+          <div class="kpi-trend">acil müdahale</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card fixed-md">
+          <h3>Saatlik Sipariş Yoğunluğu</h3>
+          <div class="chart-wrap"><canvas id="hourlyChart"></canvas></div>
+        </div>
+        <div class="card fixed-md">
+          <h3>Şube Bazlı Sipariş Dağılımı</h3>
+          <div class="chart-wrap"><canvas id="branchChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card fixed-md">
+        <h3>Şube Durumu (Canlı)</h3>
+        <div class="scroll-area">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Şube</th><th>Durum</th><th>Aktif Sipariş</th>
+                <th>Ort. Süre</th><th>Mutfak Gecikmesi</th><th>POS Uptime</th>
+              </tr>
+            </thead>
+            <tbody id="branchTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- BRANCHES -->
+    <section class="panel" id="branches">
+      <div class="card fixed-xl">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h3 style="margin-bottom: 0;">Tüm Şubeler — Detaylı Görünüm</h3>
+          <button class="btn-primary" id="addBranchBtn">+ Yeni Şube Ekle</button>
+        </div>
+        <div class="scroll-area">
+          <div id="branchCards" class="branch-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STOCK -->
+    <section class="panel" id="stock">
+      <div class="card fixed-md">
+        <h3>Stok Seviyeleri (Şube Bazlı)</h3>
+        <p class="hint">Kırmızı çubuklar kritik seviyenin altında olan stokları gösterir.</p>
+        <div class="chart-wrap"><canvas id="stockChart"></canvas></div>
+      </div>
+      <div class="card fixed-md">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <div>
+            <h3 style="margin-bottom: 0;">Kritik Stok Listesi</h3>
+          </div>
+          <button class="btn-primary" id="addProductBtn">+ Yeni Ürün Ekle</button>
+        </div>
+        <div class="scroll-area">
+          <table class="data-table">
+            <thead><tr><th>Şube</th><th>Ürün</th><th>Mevcut</th><th>Kritik Eşik</th><th>Durum</th></tr></thead>
+            <tbody id="stockTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="panel" id="reports">
+      <div class="card">
+        <h3>Tarih Aralığı</h3>
+        <div class="range-controls">
+          <button class="range-btn active" data-range="today">Bugün</button>
+          <button class="range-btn" data-range="week">Son 7 Gün</button>
+          <button class="range-btn" data-range="month">Son 30 Gün</button>
+          <button class="range-btn" data-range="year">Son 1 Yıl</button>
+          <div class="custom-range">
+            <input type="date" id="customFrom" />
+            <span>—</span>
+            <input type="date" id="customTo" />
+            <button class="range-btn" id="applyCustom">Uygula</button>
+          </div>
+        </div>
+        <div class="report-meta" id="reportMeta">—</div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Toplam Sipariş</div>
+          <div class="kpi-value" id="repOrders">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Toplam Ciro</div>
+          <div class="kpi-value"><span id="repRevenue">0</span><span class="unit">₺</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ort. Sipariş Süresi</div>
+          <div class="kpi-value"><span id="repAvgPrep">0</span><span class="unit">dk</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ort. Sipariş Tutarı</div>
+          <div class="kpi-value"><span id="repAvgTicket">0</span><span class="unit">₺</span></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card fixed-md">
+          <h3>Sipariş Trendi</h3>
+          <div class="chart-wrap"><canvas id="reportTrendChart"></canvas></div>
+        </div>
+        <div class="card fixed-md">
+          <h3>Şube Karşılaştırma (Sipariş)</h3>
+          <div class="chart-wrap"><canvas id="reportBranchChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card fixed-md">
+        <h3>Şube Detayları</h3>
+        <div class="scroll-area">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Şube</th><th>Şehir</th><th>Sipariş</th>
+                <th>Ort. Süre</th><th>Ciro</th><th>Pay</th>
+              </tr>
+            </thead>
+            <tbody id="repBranchTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALERTS -->
+    <section class="panel" id="alerts">
+      <div class="card fixed-xl">
+        <h3>Canlı Uyarı Akışı</h3>
+        <p class="hint">Yeni uyarılar otomatik olarak en üste eklenir.</p>
+        <div class="scroll-area">
+          <div class="alert-feed" id="alertFeed"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    ChainOps Demo · Software Project Management & Technical Monitoring
+  </footer>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="branchModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Yeni Şube Ekle</h3>
+        <button class="modal-close" id="closeBranchModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Şube Adı</label>
+          <input type="text" id="newBranchName" placeholder="Örn: Beşiktaş Şubesi" />
+        </div>
+        <div class="form-group">
+          <label>Şehir</label>
+          <input type="text" id="newBranchCity" placeholder="Örn: İstanbul" />
+        </div>
+        <button class="btn-primary w-100" id="submitBranchBtn">Şubeyi Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Yeni Ürün Ekle</h3>
+        <button class="modal-close" id="closeProductModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Şube Seçin</label>
+          <select id="newProductBranch"></select>
+        </div>
+        <div class="form-group">
+          <label>Ürün Adı</label>
+          <input type="text" id="newProductName" placeholder="Örn: Kola" />
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <div class="form-group" style="flex: 1;">
+            <label>Mevcut Stok</label>
+            <input type="number" id="newProductLevel" value="100" />
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Kritik Eşik</label>
+            <input type="number" id="newProductThreshold" value="20" />
+          </div>
+        </div>
+        <button class="btn-primary w-100" id="submitProductBtn">Ürünü Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
