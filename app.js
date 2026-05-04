@@ -8,6 +8,9 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+const t = (k) => window.i18n ? window.i18n.t(k) : k;
+const locale = () => window.i18n ? window.i18n.locale() : 'tr-TR';
+
 const state = {
   branches: [],
   alerts: [],
@@ -49,7 +52,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 // ===== CLOCK =====
 function updateClock() {
-  document.getElementById('clock').textContent = new Date().toLocaleTimeString('tr-TR');
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString(locale());
 }
 setInterval(updateClock, 1000); updateClock();
 
@@ -92,31 +95,31 @@ function setSystemStatus(online) {
     el.style.background = 'rgba(46, 204, 113, 0.12)';
     el.style.borderColor = 'rgba(46, 204, 113, 0.3)';
     el.style.color = 'var(--success)';
-    el.innerHTML = '<span class="dot"></span><span>API Bağlı</span>';
+    el.innerHTML = `<span class="dot"></span><span>${escapeHtml(t('topbar.apiConnected'))}</span>`;
   } else {
     el.style.background = 'rgba(231, 76, 60, 0.12)';
     el.style.borderColor = 'rgba(231, 76, 60, 0.3)';
     el.style.color = 'var(--danger)';
-    el.innerHTML = '<span class="dot" style="background:var(--danger);box-shadow:0 0 8px var(--danger)"></span><span>API Bağlantısı Yok</span>';
+    el.innerHTML = `<span class="dot" style="background:var(--danger);box-shadow:0 0 8px var(--danger)"></span><span>${escapeHtml(t('topbar.apiOffline'))}</span>`;
   }
 }
 
 // ===== KPIs =====
 function updateKPIs() {
   const s = state.summary;
-  document.getElementById('kpiOrders').textContent = (s.todayOrders || 0).toLocaleString('tr-TR');
+  document.getElementById('kpiOrders').textContent = (s.todayOrders || 0).toLocaleString(locale());
   document.getElementById('kpiAvgTime').textContent = (s.avgPrepTime || 0).toFixed(1);
   document.getElementById('kpiBusy').textContent = s.busiestBranch || '—';
-  document.getElementById('kpiBusyOrders').textContent = `${s.busiestActiveOrders || 0} aktif sipariş`;
+  document.getElementById('kpiBusyOrders').textContent = `${s.busiestActiveOrders || 0} ${t('kpi.activeOrdersSuffix')}`;
   document.getElementById('kpiUptime').textContent = (s.avgPosUptime || 0).toFixed(2);
 
   const trendEl = document.getElementById('kpiAvgTrend');
-  if (s.avgPrepTime > 22) { trendEl.textContent = '⚠ hedefin üzerinde'; trendEl.className = 'kpi-trend down'; }
-  else { trendEl.textContent = '✓ hedef içinde'; trendEl.className = 'kpi-trend up'; }
+  if (s.avgPrepTime > 22) { trendEl.textContent = t('kpi.aboveTarget'); trendEl.className = 'kpi-trend down'; }
+  else { trendEl.textContent = t('kpi.withinTarget'); trendEl.className = 'kpi-trend up'; }
 
   const upEl = document.getElementById('kpiUptimeTrend');
-  if (s.avgPosUptime >= 99) { upEl.textContent = '✓ stabil'; upEl.className = 'kpi-trend up'; }
-  else { upEl.textContent = '⚠ izleniyor'; upEl.className = 'kpi-trend down'; }
+  if (s.avgPosUptime >= 99) { upEl.textContent = t('kpi.stable'); upEl.className = 'kpi-trend up'; }
+  else { upEl.textContent = t('kpi.watching'); upEl.className = 'kpi-trend down'; }
 
   document.getElementById('kpiAlerts').textContent = s.criticalAlerts || 0;
   document.getElementById('alertBadge').textContent = s.activeAlerts || 0;
@@ -125,17 +128,18 @@ function updateKPIs() {
 // ===== BRANCH TABLE =====
 function renderBranchTable() {
   const tbody = document.getElementById('branchTbody');
+  const minLabel = t('unit.min');
   tbody.innerHTML = state.branches.map(b => {
     const status = b.posUptime < 97 ? 'bad' : (b.kitchenDelay > 5 ? 'warn' : 'ok');
-    const statusText = status === 'ok' ? 'Normal' : status === 'warn' ? 'Yavaşlama' : 'Sorunlu';
+    const statusKey = status === 'ok' ? 'status.normal' : status === 'warn' ? 'status.slowdown' : 'status.problem';
     const delayClass = b.kitchenDelay > 5 ? 'bad' : b.kitchenDelay > 2 ? 'warn' : 'ok';
     return `
       <tr>
         <td><b>${escapeHtml(b.name)}</b><br><span style="color:var(--muted);font-size:11px">${escapeHtml(b.city)}</span></td>
-        <td><span class="status-tag ${status}">${statusText}</span></td>
+        <td><span class="status-tag ${status}">${escapeHtml(t(statusKey))}</span></td>
         <td>${b.activeOrders}</td>
-        <td>${b.avgOrderTime} dk</td>
-        <td><span class="status-tag ${delayClass}">${b.kitchenDelay} dk</span></td>
+        <td>${b.avgOrderTime} ${escapeHtml(minLabel)}</td>
+        <td><span class="status-tag ${delayClass}">${b.kitchenDelay} ${escapeHtml(minLabel)}</span></td>
         <td>${b.posUptime.toFixed(2)}%</td>
       </tr>
     `;
@@ -145,9 +149,10 @@ function renderBranchTable() {
 // ===== BRANCH CARDS =====
 function renderBranchCards() {
   const c = document.getElementById('branchCards');
+  const minLabel = t('unit.min');
   c.innerHTML = state.branches.map(b => {
     const status = b.posUptime < 97 ? 'bad' : (b.kitchenDelay > 5 ? 'warn' : 'ok');
-    const statusText = status === 'ok' ? 'Normal' : status === 'warn' ? 'Yavaşlama' : 'Sorunlu';
+    const statusKey = status === 'ok' ? 'status.normal' : status === 'warn' ? 'status.slowdown' : 'status.problem';
     return `
       <div class="branch-card">
         <div class="branch-card-head">
@@ -155,15 +160,15 @@ function renderBranchCards() {
             <div class="branch-name">${escapeHtml(b.name)}</div>
             <div class="branch-city">${escapeHtml(b.city)}</div>
           </div>
-          <span class="status-tag ${status}">${statusText}</span>
+          <span class="status-tag ${status}">${escapeHtml(t(statusKey))}</span>
         </div>
         <div class="branch-metrics">
-          <div class="branch-metric"><div class="lbl">Aktif Sipariş</div><div class="val">${b.activeOrders}</div></div>
-          <div class="branch-metric"><div class="lbl">Ort. Süre</div><div class="val">${b.avgOrderTime} dk</div></div>
-          <div class="branch-metric"><div class="lbl">Mutfak Gecikme</div><div class="val">${b.kitchenDelay} dk</div></div>
-          <div class="branch-metric"><div class="lbl">POS Uptime</div><div class="val">${b.posUptime.toFixed(1)}%</div></div>
-          <div class="branch-metric"><div class="lbl">Bugünkü Sipariş</div><div class="val">${b.todayOrders}</div></div>
-          <div class="branch-metric"><div class="lbl">Düşük Stok</div><div class="val">${b.lowStockCount}</div></div>
+          <div class="branch-metric"><div class="lbl">${escapeHtml(t('metric.activeOrders'))}</div><div class="val">${b.activeOrders}</div></div>
+          <div class="branch-metric"><div class="lbl">${escapeHtml(t('metric.avgTime'))}</div><div class="val">${b.avgOrderTime} ${escapeHtml(minLabel)}</div></div>
+          <div class="branch-metric"><div class="lbl">${escapeHtml(t('metric.kitchenDelay'))}</div><div class="val">${b.kitchenDelay} ${escapeHtml(minLabel)}</div></div>
+          <div class="branch-metric"><div class="lbl">${escapeHtml(t('metric.posUptime'))}</div><div class="val">${b.posUptime.toFixed(1)}%</div></div>
+          <div class="branch-metric"><div class="lbl">${escapeHtml(t('metric.todayOrders'))}</div><div class="val">${b.todayOrders}</div></div>
+          <div class="branch-metric"><div class="lbl">${escapeHtml(t('metric.lowStock'))}</div><div class="val">${b.lowStockCount}</div></div>
         </div>
       </div>
     `;
@@ -174,14 +179,14 @@ function renderBranchCards() {
 function renderStock() {
   const tbody = document.getElementById('stockTbody');
   tbody.innerHTML = state.stockCritical.length === 0
-    ? '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Kritik seviye altında stok yok ✓</td></tr>'
+    ? `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">${escapeHtml(t('empty.noCriticalStock'))}</td></tr>`
     : state.stockCritical.map(c => `
       <tr>
         <td>${escapeHtml(c.branch_name)}</td>
         <td>${escapeHtml(c.item)}</td>
         <td><b style="color:var(--danger)">${c.level}</b></td>
         <td>${c.threshold}</td>
-        <td><span class="status-tag bad">Kritik</span></td>
+        <td><span class="status-tag bad">${escapeHtml(t('status.critical'))}</span></td>
       </tr>
     `).join('');
 }
@@ -190,18 +195,18 @@ function renderStock() {
 function renderAlerts() {
   const feed = document.getElementById('alertFeed');
   if (state.alerts.length === 0) {
-    feed.innerHTML = '<p style="color:var(--muted);text-align:center;padding:24px">Aktif uyarı yok ✓</p>';
+    feed.innerHTML = `<p style="color:var(--muted);text-align:center;padding:24px">${escapeHtml(t('empty.noAlerts'))}</p>`;
     return;
   }
   feed.innerHTML = state.alerts.map(a => {
     const icon = a.level === 'critical' ? '🚨' : a.level === 'warning' ? '⚠️' : 'ℹ️';
-    const time = new Date(a.created_at).toLocaleTimeString('tr-TR');
+    const time = new Date(a.created_at).toLocaleTimeString(locale());
     return `
       <div class="alert-item ${escapeHtml(a.level)}">
         <div class="alert-icon">${icon}</div>
         <div class="alert-body">
           <div class="alert-title">${escapeHtml(a.title)}</div>
-          <div class="alert-meta">${escapeHtml(a.branch_name || 'Merkez')} · ${time}</div>
+          <div class="alert-meta">${escapeHtml(a.branch_name || t('fallback.headquarters'))} · ${time}</div>
         </div>
       </div>
     `;
@@ -218,7 +223,7 @@ function initCharts() {
   hourlyChart = new Chart(document.getElementById('hourlyChart'), {
     type: 'line',
     data: { labels: [], datasets: [{
-      label: 'Sipariş', data: [],
+      label: t('chart.orders'), data: [],
       borderColor: '#4f8cff', backgroundColor: 'rgba(79,140,255,0.15)',
       fill: true, tension: 0.35, pointRadius: 3,
     }]},
@@ -249,6 +254,7 @@ function initCharts() {
 function updateCharts() {
   // hourly
   hourlyChart.data.labels = state.hourlyOrders.map(h => `${h.hour}:00`);
+  hourlyChart.data.datasets[0].label = t('chart.orders');
   hourlyChart.data.datasets[0].data = state.hourlyOrders.map(h => h.count);
   hourlyChart.update('none');
 
@@ -289,7 +295,7 @@ function initReportCharts() {
   reportTrendChart = new Chart(document.getElementById('reportTrendChart'), {
     type: 'line',
     data: { labels: [], datasets: [{
-      label: 'Sipariş', data: [],
+      label: t('chart.orders'), data: [],
       borderColor: '#4f8cff', backgroundColor: 'rgba(79,140,255,0.15)',
       fill: true, tension: 0.3, pointRadius: 2,
     }]},
@@ -299,7 +305,7 @@ function initReportCharts() {
   reportBranchChart = new Chart(document.getElementById('reportBranchChart'), {
     type: 'bar',
     data: { labels: [], datasets: [{
-      label: 'Sipariş', data: [],
+      label: t('chart.orders'), data: [],
       backgroundColor: ['#4f8cff','#8b5cf6','#2ecc71','#f39c12','#e74c3c','#06b6d4'],
     }]},
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
@@ -307,7 +313,7 @@ function initReportCharts() {
 }
 
 function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString('tr-TR');
+  return new Date(iso).toLocaleDateString(locale());
 }
 
 function rangeQuery() {
@@ -330,41 +336,53 @@ async function loadReports() {
       fetchJSON(`/api/reports/by-branch?${q}`),
     ]);
 
-    document.getElementById('reportMeta').textContent =
-      `${fmtDate(summary.start)} → ${fmtDate(summary.end)} · ${ts.bucket} bazlı toplulaştırma`;
-
-    const t = summary.totals;
-    document.getElementById('repOrders').textContent = (t.order_count || 0).toLocaleString('tr-TR');
-    document.getElementById('repRevenue').textContent = Math.round(t.revenue || 0).toLocaleString('tr-TR');
-    document.getElementById('repAvgPrep').textContent = (t.avg_prep || 0).toFixed(1);
-    const avgTicket = t.order_count ? (t.revenue / t.order_count) : 0;
-    document.getElementById('repAvgTicket').textContent = Math.round(avgTicket).toLocaleString('tr-TR');
-
-    // trend chart
-    reportTrendChart.data.labels = ts.data.map(d => d.bucket);
-    reportTrendChart.data.datasets[0].data = ts.data.map(d => d.order_count);
-    reportTrendChart.update();
-
-    // branch comparison
-    reportBranchChart.data.labels = byBranch.data.map(b => b.name);
-    reportBranchChart.data.datasets[0].data = byBranch.data.map(b => b.order_count);
-    reportBranchChart.update();
-
-    // table
-    const total = byBranch.data.reduce((s, b) => s + b.order_count, 0) || 1;
-    document.getElementById('repBranchTbody').innerHTML = byBranch.data.map(b => `
-      <tr>
-        <td><b>${escapeHtml(b.name)}</b></td>
-        <td>${escapeHtml(b.city)}</td>
-        <td>${(b.order_count || 0).toLocaleString('tr-TR')}</td>
-        <td>${(b.avg_prep || 0).toFixed(1)} dk</td>
-        <td>${Math.round(b.revenue || 0).toLocaleString('tr-TR')} ₺</td>
-        <td>%${((b.order_count / total) * 100).toFixed(1)}</td>
-      </tr>
-    `).join('');
+    state.reportData = { summary, ts, byBranch };
+    renderReports();
   } catch (err) {
     console.error('Report load failed', err);
   }
+}
+
+function renderReports() {
+  if (!state.reportData) return;
+  const { summary, ts, byBranch } = state.reportData;
+  const minLabel = t('unit.min');
+  const cur = t('unit.currency');
+
+  document.getElementById('reportMeta').textContent =
+    `${fmtDate(summary.start)} → ${fmtDate(summary.end)} · ${ts.bucket} ${t('range.aggregation')}`;
+
+  const tot = summary.totals;
+  document.getElementById('repOrders').textContent = (tot.order_count || 0).toLocaleString(locale());
+  document.getElementById('repRevenue').textContent = Math.round(tot.revenue || 0).toLocaleString(locale());
+  document.getElementById('repAvgPrep').textContent = (tot.avg_prep || 0).toFixed(1);
+  const avgTicket = tot.order_count ? (tot.revenue / tot.order_count) : 0;
+  document.getElementById('repAvgTicket').textContent = Math.round(avgTicket).toLocaleString(locale());
+
+  // trend chart
+  reportTrendChart.data.labels = ts.data.map(d => d.bucket);
+  reportTrendChart.data.datasets[0].label = t('chart.orders');
+  reportTrendChart.data.datasets[0].data = ts.data.map(d => d.order_count);
+  reportTrendChart.update();
+
+  // branch comparison
+  reportBranchChart.data.labels = byBranch.data.map(b => b.name);
+  reportBranchChart.data.datasets[0].label = t('chart.orders');
+  reportBranchChart.data.datasets[0].data = byBranch.data.map(b => b.order_count);
+  reportBranchChart.update();
+
+  // table
+  const total = byBranch.data.reduce((s, b) => s + b.order_count, 0) || 1;
+  document.getElementById('repBranchTbody').innerHTML = byBranch.data.map(b => `
+    <tr>
+      <td><b>${escapeHtml(b.name)}</b></td>
+      <td>${escapeHtml(b.city)}</td>
+      <td>${(b.order_count || 0).toLocaleString(locale())}</td>
+      <td>${(b.avg_prep || 0).toFixed(1)} ${escapeHtml(minLabel)}</td>
+      <td>${Math.round(b.revenue || 0).toLocaleString(locale())} ${escapeHtml(cur)}</td>
+      <td>%${((b.order_count / total) * 100).toFixed(1)}</td>
+    </tr>
+  `).join('');
 }
 
 function bindReportControls() {
@@ -380,7 +398,7 @@ function bindReportControls() {
   document.getElementById('applyCustom').addEventListener('click', () => {
     const from = document.getElementById('customFrom').value;
     const to = document.getElementById('customTo').value;
-    if (!from || !to) { alert('Lütfen tarih aralığı seçin'); return; }
+    if (!from || !to) { alert(t('alert.selectDateRange')); return; }
     document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('applyCustom').classList.add('active');
     state.reportRange = 'custom';
@@ -408,7 +426,7 @@ function bindModals() {
     const select = document.getElementById('newProductBranch');
     select.innerHTML = state.branches.map(b => `<option value="${b.id}">${escapeHtml(b.name)}</option>`).join('');
     if (state.branches.length === 0) {
-      select.innerHTML = '<option disabled selected>Önce şube ekleyin</option>';
+      select.innerHTML = `<option disabled selected>${escapeHtml(t('modal.addBranchFirst'))}</option>`;
     }
     productModal.classList.add('active');
   });
@@ -418,15 +436,15 @@ function bindModals() {
   document.getElementById('submitBranchBtn')?.addEventListener('click', async () => {
     const name = document.getElementById('newBranchName').value;
     const city = document.getElementById('newBranchCity').value;
-    if (!name || !city) return alert('Lütfen tüm alanları doldurun');
-    
+    if (!name || !city) return alert(t('alert.fillAll'));
+
     try {
       const res = await fetch('/api/branches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, city })
       });
-      if (!res.ok) throw new Error('Hata oluştu');
+      if (!res.ok) throw new Error(t('alert.error'));
       branchModal.classList.remove('active');
       document.getElementById('newBranchName').value = '';
       document.getElementById('newBranchCity').value = '';
@@ -441,15 +459,15 @@ function bindModals() {
     const item = document.getElementById('newProductName').value;
     const level = document.getElementById('newProductLevel').value;
     const threshold = document.getElementById('newProductThreshold').value;
-    if (!branch_id || !item) return alert('Lütfen geçerli değerler girin');
-    
+    if (!branch_id || !item) return alert(t('alert.invalidValues'));
+
     try {
       const res = await fetch('/api/stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ branch_id, item, level, threshold })
       });
-      if (!res.ok) throw new Error('Hata oluştu');
+      if (!res.ok) throw new Error(t('alert.error'));
       productModal.classList.remove('active');
       document.getElementById('newProductName').value = '';
       loadAll();
@@ -469,4 +487,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadAll();
   loadReports();
   setInterval(loadAll, 3000);
+
+  if (window.i18n) {
+    window.i18n.onChange(() => {
+      updateClock();
+      setSystemStatus(true);
+      renderAll();
+      renderReports();
+    });
+  }
 });

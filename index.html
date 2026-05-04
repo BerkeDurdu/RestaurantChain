@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-title-key="page.title.app">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChainOps — Restoran Zinciri Operasyon İzleme</title>
+  <title>ChainOps</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="i18n.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -13,12 +14,16 @@
       <div class="logo">CO</div>
       <div>
         <h1>ChainOps</h1>
-        <p class="subtitle">Restoran Zinciri Operasyon İzleme Merkezi</p>
+        <p class="subtitle" data-i18n="brand.subtitle">Restoran Zinciri Operasyon İzleme Merkezi</p>
       </div>
     </div>
     <div class="topbar-right">
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang-btn="tr">TR</button>
+        <button type="button" class="lang-btn" data-lang-btn="en">EN</button>
+      </div>
       <div class="status-pill" id="systemStatus">
-        <span class="dot"></span><span>Sistem Çevrimiçi</span>
+        <span class="dot"></span><span data-i18n="topbar.systemOnline">Sistem Çevrimiçi</span>
       </div>
       <div class="clock" id="clock">--:--:--</div>
       <div class="user-menu">
@@ -26,17 +31,17 @@
           <div class="user-name" id="userName">—</div>
           <div class="user-role" id="userRole">—</div>
         </div>
-        <button class="btn-logout" id="logoutBtn">Çıkış</button>
+        <button class="btn-logout" id="logoutBtn" data-i18n="topbar.logout">Çıkış</button>
       </div>
     </div>
   </header>
 
   <nav class="tabs">
-    <button class="tab active" data-tab="overview">Genel Bakış</button>
-    <button class="tab" data-tab="branches">Şubeler</button>
-    <button class="tab" data-tab="stock">Stok</button>
-    <button class="tab" data-tab="alerts">Uyarılar <span class="badge" id="alertBadge">0</span></button>
-    <button class="tab" data-tab="reports">Raporlar</button>
+    <button class="tab active" data-tab="overview" data-i18n="tab.overview">Genel Bakış</button>
+    <button class="tab" data-tab="branches" data-i18n="tab.branches">Şubeler</button>
+    <button class="tab" data-tab="stock" data-i18n="tab.stock">Stok</button>
+    <button class="tab" data-tab="alerts"><span data-i18n="tab.alerts">Uyarılar</span> <span class="badge" id="alertBadge">0</span></button>
+    <button class="tab" data-tab="reports" data-i18n="tab.reports">Raporlar</button>
   </nav>
 
   <main>
@@ -44,51 +49,55 @@
     <section class="panel active" id="overview">
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-label">Bugünkü Sipariş</div>
+          <div class="kpi-label" data-i18n="kpi.todayOrders">Bugünkü Sipariş</div>
           <div class="kpi-value" id="kpiOrders">0</div>
-          <div class="kpi-trend up">+12% dün</div>
+          <div class="kpi-trend up" data-i18n="kpi.trendVsYesterday">+12% düne göre</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Ort. Sipariş Süresi</div>
-          <div class="kpi-value"><span id="kpiAvgTime">0</span><span class="unit">dk</span></div>
+          <div class="kpi-label" data-i18n="kpi.avgOrderTime">Ort. Sipariş Süresi</div>
+          <div class="kpi-value"><span id="kpiAvgTime">0</span><span class="unit" data-i18n="unit.min">dk</span></div>
           <div class="kpi-trend" id="kpiAvgTrend">—</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">En Yoğun Şube</div>
+          <div class="kpi-label" data-i18n="kpi.busiestBranch">En Yoğun Şube</div>
           <div class="kpi-value small" id="kpiBusy">—</div>
           <div class="kpi-trend" id="kpiBusyOrders">—</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">POS Uptime (Ortalama)</div>
+          <div class="kpi-label" data-i18n="kpi.posUptime">POS Uptime (Ortalama)</div>
           <div class="kpi-value"><span id="kpiUptime">0</span><span class="unit">%</span></div>
           <div class="kpi-trend" id="kpiUptimeTrend">—</div>
         </div>
         <div class="kpi-card alert-card" id="alertCard">
-          <div class="kpi-label">Aktif Uyarı</div>
+          <div class="kpi-label" data-i18n="kpi.activeAlerts">Aktif Uyarı</div>
           <div class="kpi-value" id="kpiAlerts">0</div>
-          <div class="kpi-trend">acil müdahale</div>
+          <div class="kpi-trend" data-i18n="kpi.urgentResponse">acil müdahale</div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="card fixed-md">
-          <h3>Saatlik Sipariş Yoğunluğu</h3>
+          <h3 data-i18n="card.hourlyOrders">Saatlik Sipariş Yoğunluğu</h3>
           <div class="chart-wrap"><canvas id="hourlyChart"></canvas></div>
         </div>
         <div class="card fixed-md">
-          <h3>Şube Bazlı Sipariş Dağılımı</h3>
+          <h3 data-i18n="card.branchDistribution">Şube Bazlı Sipariş Dağılımı</h3>
           <div class="chart-wrap"><canvas id="branchChart"></canvas></div>
         </div>
       </div>
 
       <div class="card fixed-md">
-        <h3>Şube Durumu (Canlı)</h3>
+        <h3 data-i18n="card.branchStatusLive">Şube Durumu (Canlı)</h3>
         <div class="scroll-area">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Şube</th><th>Durum</th><th>Aktif Sipariş</th>
-                <th>Ort. Süre</th><th>Mutfak Gecikmesi</th><th>POS Uptime</th>
+                <th data-i18n="th.branch">Şube</th>
+                <th data-i18n="th.status">Durum</th>
+                <th data-i18n="th.activeOrders">Aktif Sipariş</th>
+                <th data-i18n="th.avgTime">Ort. Süre</th>
+                <th data-i18n="th.kitchenDelay">Mutfak Gecikmesi</th>
+                <th data-i18n="th.posUptime">POS Uptime</th>
               </tr>
             </thead>
             <tbody id="branchTbody"></tbody>
@@ -101,8 +110,8 @@
     <section class="panel" id="branches">
       <div class="card fixed-xl">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <h3 style="margin-bottom: 0;">Tüm Şubeler — Detaylı Görünüm</h3>
-          <button class="btn-primary" id="addBranchBtn">+ Yeni Şube Ekle</button>
+          <h3 style="margin-bottom: 0;" data-i18n="card.branchesAll">Tüm Şubeler — Detaylı Görünüm</h3>
+          <button class="btn-primary" id="addBranchBtn" data-i18n="btn.addBranch">+ Yeni Şube Ekle</button>
         </div>
         <div class="scroll-area">
           <div id="branchCards" class="branch-grid"></div>
@@ -113,20 +122,28 @@
     <!-- STOCK -->
     <section class="panel" id="stock">
       <div class="card fixed-md">
-        <h3>Stok Seviyeleri (Şube Bazlı)</h3>
-        <p class="hint">Kırmızı çubuklar kritik seviyenin altında olan stokları gösterir.</p>
+        <h3 data-i18n="card.stockLevels">Stok Seviyeleri (Şube Bazlı)</h3>
+        <p class="hint" data-i18n="card.stockLevelsHint">Kırmızı çubuklar kritik seviyenin altında olan stokları gösterir.</p>
         <div class="chart-wrap"><canvas id="stockChart"></canvas></div>
       </div>
       <div class="card fixed-md">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
           <div>
-            <h3 style="margin-bottom: 0;">Kritik Stok Listesi</h3>
+            <h3 style="margin-bottom: 0;" data-i18n="card.criticalStock">Kritik Stok Listesi</h3>
           </div>
-          <button class="btn-primary" id="addProductBtn">+ Yeni Ürün Ekle</button>
+          <button class="btn-primary" id="addProductBtn" data-i18n="btn.addProduct">+ Yeni Ürün Ekle</button>
         </div>
         <div class="scroll-area">
           <table class="data-table">
-            <thead><tr><th>Şube</th><th>Ürün</th><th>Mevcut</th><th>Kritik Eşik</th><th>Durum</th></tr></thead>
+            <thead>
+              <tr>
+                <th data-i18n="th.branch">Şube</th>
+                <th data-i18n="th.item">Ürün</th>
+                <th data-i18n="th.current">Mevcut</th>
+                <th data-i18n="th.threshold">Kritik Eşik</th>
+                <th data-i18n="th.status">Durum</th>
+              </tr>
+            </thead>
             <tbody id="stockTbody"></tbody>
           </table>
         </div>
@@ -136,17 +153,17 @@
     <!-- REPORTS -->
     <section class="panel" id="reports">
       <div class="card">
-        <h3>Tarih Aralığı</h3>
+        <h3 data-i18n="card.dateRange">Tarih Aralığı</h3>
         <div class="range-controls">
-          <button class="range-btn active" data-range="today">Bugün</button>
-          <button class="range-btn" data-range="week">Son 7 Gün</button>
-          <button class="range-btn" data-range="month">Son 30 Gün</button>
-          <button class="range-btn" data-range="year">Son 1 Yıl</button>
+          <button class="range-btn active" data-range="today" data-i18n="range.today">Bugün</button>
+          <button class="range-btn" data-range="week" data-i18n="range.week">Son 7 Gün</button>
+          <button class="range-btn" data-range="month" data-i18n="range.month">Son 30 Gün</button>
+          <button class="range-btn" data-range="year" data-i18n="range.year">Son 1 Yıl</button>
           <div class="custom-range">
             <input type="date" id="customFrom" />
             <span>—</span>
             <input type="date" id="customTo" />
-            <button class="range-btn" id="applyCustom">Uygula</button>
+            <button class="range-btn" id="applyCustom" data-i18n="btn.apply">Uygula</button>
           </div>
         </div>
         <div class="report-meta" id="reportMeta">—</div>
@@ -154,42 +171,46 @@
 
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-label">Toplam Sipariş</div>
+          <div class="kpi-label" data-i18n="rep.totalOrders">Toplam Sipariş</div>
           <div class="kpi-value" id="repOrders">0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Toplam Ciro</div>
-          <div class="kpi-value"><span id="repRevenue">0</span><span class="unit">₺</span></div>
+          <div class="kpi-label" data-i18n="rep.totalRevenue">Toplam Ciro</div>
+          <div class="kpi-value"><span id="repRevenue">0</span><span class="unit" id="repRevenueUnit" data-i18n="unit.currency">₺</span></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Ort. Sipariş Süresi</div>
-          <div class="kpi-value"><span id="repAvgPrep">0</span><span class="unit">dk</span></div>
+          <div class="kpi-label" data-i18n="rep.avgOrderTime">Ort. Sipariş Süresi</div>
+          <div class="kpi-value"><span id="repAvgPrep">0</span><span class="unit" data-i18n="unit.min">dk</span></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Ort. Sipariş Tutarı</div>
-          <div class="kpi-value"><span id="repAvgTicket">0</span><span class="unit">₺</span></div>
+          <div class="kpi-label" data-i18n="rep.avgTicket">Ort. Sipariş Tutarı</div>
+          <div class="kpi-value"><span id="repAvgTicket">0</span><span class="unit" id="repAvgTicketUnit" data-i18n="unit.currency">₺</span></div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="card fixed-md">
-          <h3>Sipariş Trendi</h3>
+          <h3 data-i18n="card.orderTrend">Sipariş Trendi</h3>
           <div class="chart-wrap"><canvas id="reportTrendChart"></canvas></div>
         </div>
         <div class="card fixed-md">
-          <h3>Şube Karşılaştırma (Sipariş)</h3>
+          <h3 data-i18n="card.branchCompare">Şube Karşılaştırma (Sipariş)</h3>
           <div class="chart-wrap"><canvas id="reportBranchChart"></canvas></div>
         </div>
       </div>
 
       <div class="card fixed-md">
-        <h3>Şube Detayları</h3>
+        <h3 data-i18n="card.branchDetails">Şube Detayları</h3>
         <div class="scroll-area">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Şube</th><th>Şehir</th><th>Sipariş</th>
-                <th>Ort. Süre</th><th>Ciro</th><th>Pay</th>
+                <th data-i18n="th.branch">Şube</th>
+                <th data-i18n="th.city">Şehir</th>
+                <th data-i18n="th.orders">Sipariş</th>
+                <th data-i18n="th.avgTime">Ort. Süre</th>
+                <th data-i18n="th.revenue">Ciro</th>
+                <th data-i18n="th.share">Pay</th>
               </tr>
             </thead>
             <tbody id="repBranchTbody"></tbody>
@@ -201,8 +222,8 @@
     <!-- ALERTS -->
     <section class="panel" id="alerts">
       <div class="card fixed-xl">
-        <h3>Canlı Uyarı Akışı</h3>
-        <p class="hint">Yeni uyarılar otomatik olarak en üste eklenir.</p>
+        <h3 data-i18n="card.alertFeed">Canlı Uyarı Akışı</h3>
+        <p class="hint" data-i18n="card.alertFeedHint">Yeni uyarılar otomatik olarak en üste eklenir.</p>
         <div class="scroll-area">
           <div class="alert-feed" id="alertFeed"></div>
         </div>
@@ -210,7 +231,7 @@
     </section>
   </main>
 
-  <footer class="footer">
+  <footer class="footer" data-i18n="footer.text">
     ChainOps Demo · Software Project Management & Technical Monitoring
   </footer>
 
@@ -218,19 +239,19 @@
   <div class="modal-overlay" id="branchModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Yeni Şube Ekle</h3>
+        <h3 data-i18n="modal.newBranch">Yeni Şube Ekle</h3>
         <button class="modal-close" id="closeBranchModal">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>Şube Adı</label>
-          <input type="text" id="newBranchName" placeholder="Örn: Beşiktaş Şubesi" />
+          <label data-i18n="modal.branchName">Şube Adı</label>
+          <input type="text" id="newBranchName" data-i18n-ph="modal.branchNamePh" placeholder="Örn: Beşiktaş Şubesi" />
         </div>
         <div class="form-group">
-          <label>Şehir</label>
-          <input type="text" id="newBranchCity" placeholder="Örn: İstanbul" />
+          <label data-i18n="modal.branchCity">Şehir</label>
+          <input type="text" id="newBranchCity" data-i18n-ph="modal.branchCityPh" placeholder="Örn: İstanbul" />
         </div>
-        <button class="btn-primary w-100" id="submitBranchBtn">Şubeyi Kaydet</button>
+        <button class="btn-primary w-100" id="submitBranchBtn" data-i18n="btn.saveBranch">Şubeyi Kaydet</button>
       </div>
     </div>
   </div>
@@ -238,29 +259,29 @@
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Yeni Ürün Ekle</h3>
+        <h3 data-i18n="modal.newProduct">Yeni Ürün Ekle</h3>
         <button class="modal-close" id="closeProductModal">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>Şube Seçin</label>
+          <label data-i18n="modal.selectBranch">Şube Seçin</label>
           <select id="newProductBranch"></select>
         </div>
         <div class="form-group">
-          <label>Ürün Adı</label>
-          <input type="text" id="newProductName" placeholder="Örn: Kola" />
+          <label data-i18n="modal.productName">Ürün Adı</label>
+          <input type="text" id="newProductName" data-i18n-ph="modal.productNamePh" placeholder="Örn: Kola" />
         </div>
         <div style="display: flex; gap: 10px;">
           <div class="form-group" style="flex: 1;">
-            <label>Mevcut Stok</label>
+            <label data-i18n="modal.currentStock">Mevcut Stok</label>
             <input type="number" id="newProductLevel" value="100" />
           </div>
           <div class="form-group" style="flex: 1;">
-            <label>Kritik Eşik</label>
+            <label data-i18n="modal.criticalThreshold">Kritik Eşik</label>
             <input type="number" id="newProductThreshold" value="20" />
           </div>
         </div>
-        <button class="btn-primary w-100" id="submitProductBtn">Ürünü Kaydet</button>
+        <button class="btn-primary w-100" id="submitProductBtn" data-i18n="btn.saveProduct">Ürünü Kaydet</button>
       </div>
     </div>
   </div>

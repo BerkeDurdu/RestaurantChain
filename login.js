@@ -1,4 +1,5 @@
 const errorBox = document.getElementById('errorBox');
+const t = (k) => window.i18n ? window.i18n.t(k) : k;
 
 function showError(msg) {
   errorBox.textContent = msg;
@@ -24,8 +25,9 @@ async function submitForm(form, endpoint) {
   const fd = new FormData(form);
   const body = Object.fromEntries(fd.entries());
   const btn = form.querySelector('button[type=submit]');
+  const originalKey = endpoint.endsWith('login') ? 'login.signIn' : 'login.signUp';
   btn.disabled = true;
-  btn.textContent = 'Lütfen bekleyin...';
+  btn.textContent = t('login.loading');
 
   try {
     const r = await fetch(endpoint, {
@@ -34,12 +36,12 @@ async function submitForm(form, endpoint) {
       body: JSON.stringify(body),
     });
     const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Bir hata oluştu');
+    if (!r.ok) throw new Error(data.error || t('login.genericError'));
     window.location.href = '/';
   } catch (err) {
     showError(err.message);
     btn.disabled = false;
-    btn.textContent = endpoint.endsWith('login') ? 'Giriş Yap' : 'Kayıt Ol';
+    btn.textContent = t(originalKey);
   }
 }
 

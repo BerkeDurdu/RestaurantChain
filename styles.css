@@ -87,6 +87,37 @@ body {
   color: var(--danger);
 }
 
+/* LANGUAGE SWITCH */
+.lang-switch {
+  display: inline-flex;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.lang-btn {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+.lang-btn:hover { color: var(--text); }
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.lang-switch-floating {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 10;
+}
+
 /* RANGE PICKER */
 .range-controls {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
