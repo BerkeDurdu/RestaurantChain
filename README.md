@@ -1,84 +1,89 @@
 # ChainOps / RestaurantChain
 
-Restoran zinciri operasyonlarını izlemek için hazırlanmış, Express + SQLite tabanlı bir demo uygulaması.
-Uygulama; şube durumları, stok takibi, uyarılar, saatlik sipariş grafikleri ve tarih aralıklı raporlar sunar.
+An Express + SQLite-based demo application designed to monitor restaurant chain operations.
+The application provides branch statuses, stock tracking, alerts, hourly order charts, date-range reports, user authentication, multi-tenancy, and multi-language support (TR/EN).
 
-## Gereksinimler
+## Requirements
 
-- Node.js 18 veya daha yeni bir sürüm
+- Node.js 18 or newer
 - npm
 
-Ek bir veritabanı kurulumu gerekmez. Uygulama yerel SQLite veritabanını ilk açılışta oluşturur.
+No additional database setup is required. The application creates a local SQLite database on its first launch.
 
-## Kurulum
+## Installation
 
-1. Proje klasörüne geçin:
+1. Navigate to the project folder:
 
 ```bash
 cd RestaurantChain
 ```
 
-2. Bağımlılıkları kurun:
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Uygulamayı başlatın:
+3. Start the application:
 
 ```bash
 npm start
 ```
 
-Geliştirme sırasında otomatik yeniden başlatma için:
+For auto-restart during development:
 
 ```bash
 npm run dev
 ```
 
-## Uygulamayı Açma
+## Opening the Application
 
-Sunucu varsayılan olarak `http://localhost:3000` adresinde çalışır.
+The server runs on `http://localhost:3000` by default.
 
-- Ana ekran: `http://localhost:3000/`
-- Giriş ekranı: `http://localhost:3000/login.html`
+- Main dashboard: `http://localhost:3000/`
+- Login screen: `http://localhost:3000/login.html`
 
-Giriş yapmamış kullanıcılar ana sayfaya gitmeye çalıştığında otomatik olarak giriş ekranına yönlendirilir.
+Unauthenticated users attempting to visit the main page are automatically redirected to the login screen.
 
-## İlk Kullanım
+## First Use
 
-1. `login.html` sayfasını açın.
-2. `Kayıt Ol` sekmesinden yeni bir yönetici hesabı oluşturun.
-3. Kayıttan sonra sistem otomatik olarak giriş yapar ve ana panele yönlendirir.
+1. Open the `login.html` page.
+2. Create a new admin account from the `Register` tab.
+3. After registration, the system automatically logs you in and redirects to the main dashboard.
 
-İlk çalıştırmada uygulama ayrıca bir bootstrap yönetici hesabı oluşturabilir. Bu durumda kullanıcı adı ve şifre terminal çıktısında gösterilir.
+On the first run, the application may also create a bootstrap admin account. In this case, the username and password will be shown in the terminal output.
 
-## Özellikler
+## Features
 
-- Şube bazlı operasyon izleme
-- Canlı POS ve mutfak gecikme metrikleri
-- Stok ve kritik stok listesi
-- Uyarı akışı
-- Günlük, haftalık, aylık ve yıllık raporlar
-- Şube ekleme ve stok ürünü ekleme
+- **Multi-language Support (i18n)**: Switch seamlessly between Turkish and English interfaces.
+- **Authentication & Security**: JWT-based session management and secure password hashing.
+- **Multi-tenant Architecture**: Users can only see, manage, and create branches/products associated with their own accounts.
+- **Branch-based Operations Monitoring**: Live view of branch metrics.
+- **Live POS and Kitchen Delay Metrics**: Real-time operational data.
+- **Stock and Critical Stock List**: Automated stock level warnings.
+- **Alert Stream**: Real-time notifications for critical branch issues.
+- **Comprehensive Reports**: Daily, weekly, monthly, and yearly aggregated data.
+- **Dynamic Data Management**: Adding custom branches and tracking custom stock items per branch.
 
-## Önemli Notlar
+## Important Notes
 
-- `server/simulator.js` arka planda her 3 saniyede bir sipariş, stok, POS ve uyarı verilerini günceller. Bu yüzden ekran değerleri test sırasında sürekli değişebilir.
-- Veritabanı dosyası `server/chainops.db` altında oluşur ve repoya eklenmemelidir.
-- İsteğe bağlı ortam değişkenleri:
-  - `PORT`: Sunucunun çalışacağı port
-  - `JWT_SECRET`: Oturum doğrulama anahtarı
+- `server/simulator.js` updates order, stock, POS, and alert data in the background every 3 seconds. Because of this, screen values may constantly change during testing.
+- The database file is created under `server/chainops.db` and should not be added to the repository.
+- Optional environment variables:
+  - `PORT`: Port on which the server will run
+  - `JWT_SECRET`: Session authentication key
 
-## Proje Yapısı
+## Project Structure
 
 ```text
 app.js
+i18n.js
 index.html
 login.css
 login.html
 login.js
 styles.css
+package.json
 server/
   auth.js
   db.js
@@ -87,8 +92,8 @@ server/
   simulator.js
 ```
 
-## Sorun Giderme
+## Troubleshooting
 
-- `npm start` çalışmıyorsa önce `npm install` komutunu tekrar çalıştırın.
-- Login sonrası ana sayfa açılmıyorsa tarayıcı çerezlerini temizleyin ve tekrar deneyin.
-- Veriler beklenmedik şekilde değişiyorsa bunun nedeni canlı simülatördür; bu davranış normaldir.
+- If `npm start` does not work, run the `npm install` command again first.
+- If the main page does not open after login, clear your browser cookies and try again.
+- If data changes unexpectedly, this is due to the live simulator; this behavior is normal.
